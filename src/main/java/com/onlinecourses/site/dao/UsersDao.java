@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +25,11 @@ import java.util.Locale;
  */
 @Component("usersDao")
 public class UsersDao {
-
     NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     JdbcTemplate jdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource jdbc) {
-
         Locale.setDefault(Locale.ENGLISH);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbc);
     }
@@ -43,13 +40,11 @@ public class UsersDao {
     }
 
     public List<User> getAllUsers() {
-
         return namedParameterJdbcTemplate.query("select * from users", new UsersRowMapper());
     }
 
     @Transactional
     public void createUser(User user, String authority) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
 
         int nextUserId = jdbcTemplate.queryForObject("select users_sequence.NEXTVAL from dual", Integer.class);
@@ -75,21 +70,18 @@ public class UsersDao {
     }
 
     public List<User> getAllUsersByRole(String authority) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("authority", authority);
         return namedParameterJdbcTemplate.query("select users.user_id, users.email, users.last_name, users.first_name, users.phone_number, users.country, users.city, users.birth_date, users.registration_date, users.enabled, users.description from users, authorities where users.user_id = authorities.user_id and authorities.authority = :authority", params, new UsersRowMapper());
     }
 
     public List<User> getTeachersBySubjectCode(String code) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("code", code);
         return namedParameterJdbcTemplate.query("select * from users, subject_teacher where users.user_id = subject_teacher.user_id and subject_teacher.subject_code = :code", params, new UsersRowMapper());
     }
 
     public User getUserById(int id) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
 
@@ -97,7 +89,6 @@ public class UsersDao {
     }
 
     public boolean update(User user) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
 
         params.addValue("id", user.getId());
@@ -112,14 +103,12 @@ public class UsersDao {
     }
 
     public boolean deleteUser(int id) {
-
         MapSqlParameterSource params = new MapSqlParameterSource("id", id);
 
         return namedParameterJdbcTemplate.update("delete from users where user_id=:id", params) == 1;
     }
 
     public boolean exists(String email) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("email", email);
 
@@ -127,7 +116,6 @@ public class UsersDao {
     }
 
     public User getUserByEmail(String email) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("email", email);
 
@@ -177,7 +165,6 @@ public class UsersDao {
     }
 
     public MyUserDetails createUserDetails(String username, MyUserDetails userFromUserQuery, List<GrantedAuthority> combinedAuthorities) {
-
         return new MyUserDetails(username, userFromUserQuery.getPassword(), userFromUserQuery.isEnabled(), true, true, true, combinedAuthorities, userFromUserQuery.getId(), userFromUserQuery.getLastName(), userFromUserQuery.getFirstName());
     }
 }

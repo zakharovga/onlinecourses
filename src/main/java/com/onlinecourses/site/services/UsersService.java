@@ -1,6 +1,5 @@
 package com.onlinecourses.site.services;
 
-import com.onlinecourses.site.dao.Subject;
 import com.onlinecourses.site.dao.User;
 import com.onlinecourses.site.dao.UsersDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import java.util.List;
  */
 @Component("usersService")
 public class UsersService {
-
     private UsersDao usersDao;
 
     @Autowired
@@ -26,7 +24,6 @@ public class UsersService {
     }
 
     public void save(User user, String authority) {
-
         if(user.getId() == 0) {
             usersDao.createUser(user, authority);
         }

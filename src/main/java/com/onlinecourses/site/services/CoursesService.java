@@ -12,7 +12,6 @@ import java.util.List;
  */
 @Component("coursesService")
 public class CoursesService {
-
     private static int QUANTITY = 100;
     private CoursesDao coursesDao;
     private UsersDao usersDao;
@@ -49,7 +48,6 @@ public class CoursesService {
 
     @Transactional
     public void addSubjectAndTeacherToCourse(int id, Subject subject, User teacher) {
-
         if(subject != null) {
             coursesDao.addSubjectToCourse(id, subject);
         }
@@ -68,7 +66,6 @@ public class CoursesService {
 
     @Transactional
     public boolean addStudentToCourse(int id, int userId) {
-
         if(coursesDao.studentsQuantity(id) >= this.QUANTITY) {
             return false;
         }

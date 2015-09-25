@@ -4,12 +4,10 @@ import com.onlinecourses.site.dao.Subject;
 import com.onlinecourses.site.dao.User;
 import com.onlinecourses.site.services.SubjectsService;
 import com.onlinecourses.site.services.UsersService;
-import com.onlinecourses.site.validation.NotBlank;
 import com.onlinecourses.site.validation.ValidEmail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,11 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -53,11 +49,9 @@ public class UserController {
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ModelAndView register(@Valid RegisterForm form, Errors errors) {
-
         if(errors.hasErrors()) {
             return new ModelAndView("register");
         }
-
         if(usersService.exists(form.getEmail())) {
             errors.rejectValue("email", "DuplicateKey.user.email");
             return new ModelAndView("register");
@@ -80,6 +74,94 @@ public class UserController {
         this.usersService.save(user, "ROLE_STUDENT");
 
         return new ModelAndView(new RedirectView("/login", true, false));
+    }
+
+    @RequestMapping(value = "/admin/teachers/create", method = RequestMethod.GET)
+    public ModelAndView createTeacher(Map<String, Object> model, @RequestParam(value = "id", required = false) Integer id) {
+        CreateTeacherForm createTeacherForm = new CreateTeacherForm();
+        if (id != null) {
+            User teacher = usersService.getUserById(id);
+
+            createTeacherForm.setId(teacher.getId());
+            createTeacherForm.setEmail(teacher.getEmail());
+            createTeacherForm.setLastName(teacher.getLastName());
+            createTeacherForm.setFirstName(teacher.getFirstName());
+            createTeacherForm.setCountry(teacher.getCountry());
+            createTeacherForm.setCity(teacher.getCity());
+            createTeacherForm.setPhoneNumber(teacher.getPhoneNumber());
+            createTeacherForm.setDescription(teacher.getDescription());
+
+            model.put("createTeacherForm", createTeacherForm);
+            return new ModelAndView("admin/createteacher");
+        }
+        model.put("createTeacherForm", new CreateTeacherForm());
+        return new ModelAndView("admin/createteacher");
+    }
+
+    @RequestMapping(value = "/admin/teachers/create", method = RequestMethod.POST)
+    public ModelAndView createTeacher(@Valid CreateTeacherForm createTeacherForm, Errors errors, @RequestParam(value = "id", required = false) Integer id) {
+        User teacher = new User();
+
+        teacher.setId(createTeacherForm.getId());
+        teacher.setEmail(createTeacherForm.getEmail());
+        teacher.setLastName(createTeacherForm.getLastName());
+        teacher.setFirstName(createTeacherForm.getFirstName());
+        teacher.setPhoneNumber(createTeacherForm.getPhoneNumber());
+        teacher.setCountry(createTeacherForm.getCountry());
+        teacher.setCity(createTeacherForm.getCity());
+        teacher.setDescription(createTeacherForm.getDescription());
+        teacher.setPassword(createTeacherForm.getPassword());
+        teacher.setEnabled(true);
+
+        if (id != null && id != 0) {
+            usersService.update(teacher);
+            return new ModelAndView(new RedirectView("/admin/teachers", true, false));
+        }
+
+        if (errors.hasErrors()) {
+            return new ModelAndView("admin/createteacher");
+        }
+
+        if (usersService.exists(createTeacherForm.getEmail())) {
+            errors.rejectValue("email", "DuplicateKey.user.email");
+            return new ModelAndView("admin/createteacher");
+        }
+
+        usersService.save(teacher, "ROLE_TEACHER");
+
+        return new ModelAndView(new RedirectView("/admin/teachers", true, false));
+    }
+
+    @RequestMapping(value = "/admin/teachers/{id}/delete", method = RequestMethod.GET)
+    public ModelAndView createTeacher(Model model, @PathVariable("id") int id) {
+        usersService.deleteUser(id);
+        return new ModelAndView(new RedirectView("/admin/teachers", true, false));
+    }
+
+    @RequestMapping("teachers/{id}")
+    public String viewSubject(Model model, @PathVariable(value = "id") int id) {
+        User teacher = usersService.getUserById(id);
+        System.out.println(teacher.getLastName());
+        List<Subject> subjects = subjectsService.getSubjectsByTeacherId(id);
+
+        model.addAttribute("teacher", teacher);
+        model.addAttribute("subjects", subjects);
+
+        return "teacher";
+    }
+
+    @RequestMapping("admin/teachers/{id}/addsubject/{code}")
+    public String addSubjectToTeacher(Model model, @PathVariable(value = "id") int id, @PathVariable(value = "code") String code) {
+        subjectsService.addSubjectToTeacher(id, code);
+
+        User teacher = usersService.getUserById(id);
+        System.out.println(teacher.getLastName());
+        List<Subject> subjects = subjectsService.getSubjectsByTeacherId(id);
+
+        model.addAttribute("teacher", teacher);
+        model.addAttribute("subjects", subjects);
+
+        return "admin/addsubject";
     }
 
     public static class RegisterForm {
@@ -195,73 +277,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value = "/admin/teachers/create", method = RequestMethod.GET)
-    public ModelAndView createTeacher(Map<String, Object> model, @RequestParam(value = "id", required = false) Integer id) {
-
-        CreateTeacherForm createTeacherForm = new CreateTeacherForm();
-        if(id != null) {
-            User teacher = usersService.getUserById(id);
-
-            createTeacherForm.setId(teacher.getId());
-            createTeacherForm.setEmail(teacher.getEmail());
-            createTeacherForm.setLastName(teacher.getLastName());
-            createTeacherForm.setFirstName(teacher.getFirstName());
-            createTeacherForm.setCountry(teacher.getCountry());
-            createTeacherForm.setCity(teacher.getCity());
-            createTeacherForm.setPhoneNumber(teacher.getPhoneNumber());
-            createTeacherForm.setDescription(teacher.getDescription());
-
-            model.put("createTeacherForm", createTeacherForm);
-            return new ModelAndView("admin/createteacher");
-        }
-        model.put("createTeacherForm", new CreateTeacherForm());
-        return new ModelAndView("admin/createteacher");
-    }
-
-    @RequestMapping(value = "/admin/teachers/create", method = RequestMethod.POST)
-    public ModelAndView createTeacher(@Valid CreateTeacherForm createTeacherForm, Errors errors, @RequestParam(value = "id", required = false) Integer id) {
-
-        User teacher = new User();
-
-        teacher.setId(createTeacherForm.getId());
-        teacher.setEmail(createTeacherForm.getEmail());
-        teacher.setLastName(createTeacherForm.getLastName());
-        teacher.setFirstName(createTeacherForm.getFirstName());
-        teacher.setPhoneNumber(createTeacherForm.getPhoneNumber());
-        teacher.setCountry(createTeacherForm.getCountry());
-        teacher.setCity(createTeacherForm.getCity());
-        teacher.setDescription(createTeacherForm.getDescription());
-        teacher.setPassword(createTeacherForm.getPassword());
-        teacher.setEnabled(true);
-
-        if(id != null && id != 0) {
-            usersService.update(teacher);
-            return new ModelAndView(new RedirectView("/admin/teachers", true, false));
-        }
-
-        if(errors.hasErrors()) {
-            return new ModelAndView("admin/createteacher");
-        }
-
-        if(usersService.exists(createTeacherForm.getEmail())) {
-            errors.rejectValue("email", "DuplicateKey.user.email");
-            return new ModelAndView("admin/createteacher");
-        }
-
-        usersService.save(teacher, "ROLE_TEACHER");
-
-        return new ModelAndView(new RedirectView("/admin/teachers", true, false));
-    }
-
-    @RequestMapping(value = "/admin/teachers/{id}/delete", method = RequestMethod.GET)
-    public ModelAndView createTeacher(Model model, @PathVariable("id") int id) {
-
-        usersService.deleteUser(id);
-        return new ModelAndView(new RedirectView("/admin/teachers", true, false));
-    }
-
     public static class CreateTeacherForm {
-
         private int id;
 
         @ValidEmail
@@ -329,6 +345,10 @@ public class UserController {
             return password;
         }
 
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
         public String getCity() {
             return city;
         }
@@ -360,37 +380,5 @@ public class UserController {
         public void setPhoneNumber(String phoneNumber) {
             this.phoneNumber = phoneNumber;
         }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-    }
-
-    @RequestMapping("teachers/{id}")
-    public String viewSubject(Model model, @PathVariable(value = "id") int id) {
-
-        User teacher = usersService.getUserById(id);
-        System.out.println(teacher.getLastName());
-        List<Subject> subjects = subjectsService.getSubjectsByTeacherId(id);
-
-        model.addAttribute("teacher", teacher);
-        model.addAttribute("subjects", subjects);
-
-        return "teacher";
-    }
-
-    @RequestMapping("admin/teachers/{id}/addsubject/{code}")
-    public String addSubjectToTeacher(Model model, @PathVariable(value = "id") int id, @PathVariable(value = "code") String code) {
-
-        subjectsService.addSubjectToTeacher(id, code);
-
-        User teacher = usersService.getUserById(id);
-        System.out.println(teacher.getLastName());
-        List<Subject> subjects = subjectsService.getSubjectsByTeacherId(id);
-
-        model.addAttribute("teacher", teacher);
-        model.addAttribute("subjects", subjects);
-
-        return "admin/addsubject";
     }
 }

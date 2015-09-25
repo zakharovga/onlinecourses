@@ -6,7 +6,6 @@ import java.util.List;
  * Created by zakharov_ga on 07.07.2015.
  */
 public class Subject {
-
     private String code;
     private String name;
     private double price;

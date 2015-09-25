@@ -11,7 +11,6 @@ import java.sql.SQLException;
 public class SubjectsRowMapper implements RowMapper<Subject> {
     @Override
     public Subject mapRow(ResultSet resultSet, int i) throws SQLException {
-
         Subject subject = new Subject();
 
         subject.setCode(resultSet.getString("subject_code"));

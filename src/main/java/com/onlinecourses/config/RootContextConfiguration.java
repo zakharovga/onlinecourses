@@ -15,14 +15,8 @@ import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
 
 @Configuration
-@ComponentScan(
-        basePackages = "com.onlinecourses.site",
-        excludeFilters = @ComponentScan.Filter(Controller.class)
-)
-@EnableTransactionManagement(
-        mode = AdviceMode.PROXY, proxyTargetClass = false,
-        order = 2
-)
+@ComponentScan(basePackages = "com.onlinecourses.site", excludeFilters = @ComponentScan.Filter(Controller.class))
+@EnableTransactionManagement(mode = AdviceMode.PROXY, proxyTargetClass = false, order = 2)
 @Import({ SecurityConfiguration.class })
 public class RootContextConfiguration {
 
@@ -39,8 +33,7 @@ public class RootContextConfiguration {
 
     @Bean
     public MessageSource messageSource() {
-        ReloadableResourceBundleMessageSource messageSource =
-                new ReloadableResourceBundleMessageSource();
+        ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setCacheSeconds(-1);
         messageSource.setDefaultEncoding(StandardCharsets.UTF_8.name());
         messageSource.setBasenames("/WEB-INF/messages/messages");
@@ -56,8 +49,7 @@ public class RootContextConfiguration {
 
     @Bean
     public MethodValidationPostProcessor methodValidationPostProcessor() {
-        MethodValidationPostProcessor processor =
-                new MethodValidationPostProcessor();
+        MethodValidationPostProcessor processor = new MethodValidationPostProcessor();
         processor.setValidator(this.localValidatorFactoryBean());
         return processor;
     }

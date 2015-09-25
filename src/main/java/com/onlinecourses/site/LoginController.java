@@ -15,7 +15,6 @@ import java.util.Map;
  */
 @Controller
 public class LoginController {
-
     UsersService usersService;
 
     @Autowired
@@ -25,7 +24,6 @@ public class LoginController {
 
     @RequestMapping("/loggedin")
     public ModelAndView loggedin(Map<String, Object> model, HttpServletRequest request) {
-
         if(request.isUserInRole("ADMIN")) {
             return new ModelAndView(new RedirectView("/admin/courses", true, false));
         }
@@ -43,9 +41,7 @@ public class LoginController {
     }
 
 
-
-    public static class LoginForm
-    {
+    public static class LoginForm {
         private String username;
         private String password;
 

@@ -1,7 +1,6 @@
 package com.onlinecourses.site.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -15,12 +14,10 @@ import java.util.Locale;
  */
 @Component("subjectsDao")
 public class SubjectsDao {
-
     NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource jdbc) {
-
         Locale.setDefault(Locale.ENGLISH);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbc);
     }
@@ -30,7 +27,6 @@ public class SubjectsDao {
     }
 
     public boolean createSubject(Subject subject) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
 
         params.addValue("code", subject.getCode());
@@ -43,7 +39,6 @@ public class SubjectsDao {
     }
 
     public Subject getSubjectByCode(String code) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("code", code);
 
@@ -51,14 +46,12 @@ public class SubjectsDao {
     }
 
     public List<Subject> getSubjectsByTeacherId(int id) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
         return namedParameterJdbcTemplate.query("select * from subject_teacher, subjects where subjects.subject_code = subject_teacher.subject_code and subject_teacher.user_id = :id", params, new SubjectsRowMapper());
     }
 
     public List<Subject> addSubjectToTeacher(int id, String code) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
         params.addValue("code", code);
@@ -75,7 +68,6 @@ public class SubjectsDao {
     }
 
     public boolean update(Subject subject) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
 
         params.addValue("code", subject.getCode());
@@ -87,14 +79,12 @@ public class SubjectsDao {
     }
 
     public List<User> getTeachersBySubjectCode(String code) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("code", code);
         return namedParameterJdbcTemplate.query("select * from subject_teacher, users where users.user_id = subject_teacher.user_id and subject_teacher.subject_code = :code", params, new UsersRowMapper());
     }
 
     public List<User> getNotAddedTeachersBySubjectCode(String code) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("code", code);
         return namedParameterJdbcTemplate.query("select * from users, authorities\n" +
@@ -105,7 +95,6 @@ public class SubjectsDao {
     }
 
     public List<User> addTeacherToSubject(String code, int id) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
         params.addValue("code", code);
@@ -116,7 +105,6 @@ public class SubjectsDao {
     }
 
     public boolean exists(String code) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("code", code);
 
@@ -124,7 +112,6 @@ public class SubjectsDao {
     }
 
     public boolean deleteSubject(String code) {
-
         MapSqlParameterSource params = new MapSqlParameterSource("code", code);
 
         return namedParameterJdbcTemplate.update("delete from subjects where subject_code=:code", params) == 1;

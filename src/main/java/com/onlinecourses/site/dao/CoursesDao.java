@@ -19,13 +19,11 @@ import java.util.Locale;
  */
 @Component("coursesDao")
 public class CoursesDao {
-
     NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     JdbcTemplate jdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource jdbc) {
-
         Locale.setDefault(Locale.ENGLISH);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbc);
     }
@@ -42,7 +40,6 @@ public class CoursesDao {
     }
 
     public Course getCourseById(int id) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
 
@@ -52,7 +49,6 @@ public class CoursesDao {
     }
 
     public boolean update(Course course) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
 
         params.addValue("id", course.getId());
@@ -64,7 +60,6 @@ public class CoursesDao {
 
     @Transactional
     public boolean save(Course course) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
 
         int nextCourseId = jdbcTemplate.queryForObject("select courses_sequence.NEXTVAL from dual", Integer.class);
@@ -78,7 +73,6 @@ public class CoursesDao {
     }
 
     public boolean addSubjectToCourse(int id, Subject subject) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
         params.addValue("code", subject.getCode());
@@ -87,7 +81,6 @@ public class CoursesDao {
     }
 
     public boolean addTeacherToCourse(int id, User teacher) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
         params.addValue("teacherId", teacher.getId());
@@ -96,14 +89,12 @@ public class CoursesDao {
     }
 
     public boolean deleteCourse(int id) {
-
         MapSqlParameterSource params = new MapSqlParameterSource("id", id);
 
         return namedParameterJdbcTemplate.update("delete from courses where course_id = :id", params) == 1;
     }
 
     public List<Course> getCoursesByStudentId(int id) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
 
@@ -115,7 +106,6 @@ public class CoursesDao {
     }
 
     public List<Course> getNewCourses(int n) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("n", n);
 
@@ -129,7 +119,6 @@ public class CoursesDao {
     }
 
     public boolean addStudentToCourse(int id, int userId) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
         params.addValue("userId", userId);
@@ -138,7 +127,6 @@ public class CoursesDao {
     }
 
     public int studentsQuantity(int id) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
 
@@ -146,7 +134,6 @@ public class CoursesDao {
     }
 
     public Boolean isEnrolled(int id, int userId) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
         params.addValue("userId", userId);
@@ -155,7 +142,6 @@ public class CoursesDao {
     }
 
     public List<Course> getCoursesByTeacherId(int id) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
 
@@ -166,7 +152,6 @@ public class CoursesDao {
     }
 
     public List<User> getStudentsByCourseId(int id) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
 
@@ -175,7 +160,6 @@ public class CoursesDao {
                 "where course_user.course_id = :id", params, new RowMapper<User>() {
             @Override
             public User mapRow(ResultSet resultSet, int i) throws SQLException {
-
                 User user = new User();
 
                 user.setId(resultSet.getInt("user_id"));
@@ -190,7 +174,6 @@ public class CoursesDao {
     }
 
     public boolean rateStudent(int id, int userId, String mark) {
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
         params.addValue("userId", userId);

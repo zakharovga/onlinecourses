@@ -4,7 +4,6 @@ import com.onlinecourses.site.dao.Subject;
 import com.onlinecourses.site.dao.SubjectsDao;
 import com.onlinecourses.site.dao.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,7 +13,6 @@ import java.util.List;
  */
 @Component("subjectsService")
 public class SubjectsService {
-
     private SubjectsDao subjectsDao;
 
     @Autowired
