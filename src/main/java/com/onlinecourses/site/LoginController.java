@@ -1,6 +1,5 @@
 package com.onlinecourses.site;
 
-import com.onlinecourses.site.dao.User;
 import com.onlinecourses.site.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
