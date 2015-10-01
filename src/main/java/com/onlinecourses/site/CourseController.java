@@ -4,9 +4,9 @@ import com.onlinecourses.site.dao.Course;
 import com.onlinecourses.site.dao.MyUserDetails;
 import com.onlinecourses.site.dao.Subject;
 import com.onlinecourses.site.dao.User;
-import com.onlinecourses.site.services.CoursesService;
-import com.onlinecourses.site.services.SubjectsService;
-import com.onlinecourses.site.services.UsersService;
+import com.onlinecourses.site.services.CourseService;
+import com.onlinecourses.site.services.SubjectService;
+import com.onlinecourses.site.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -27,24 +27,15 @@ import java.util.Map;
  */
 @Controller
 public class CourseController {
-    UsersService usersService;
-    SubjectsService subjectsService;
-    CoursesService coursesService;
 
     @Autowired
-    public void setUsersService(UsersService usersService) {
-        this.usersService = usersService;
-    }
+    UserService usersService;
 
     @Autowired
-    public void setSubjectService(SubjectsService subjectsService) {
-        this.subjectsService = subjectsService;
-    }
+    SubjectService subjectService;
 
     @Autowired
-    public void setCoursesService(CoursesService coursesService) {
-        this.coursesService = coursesService;
-    }
+    CourseService courseService;
 
     @RequestMapping("/")
     public String home(Model model) {
@@ -55,7 +46,7 @@ public class CourseController {
 
     @RequestMapping("subjects/{code}")
     public String viewSubject(Model model, @PathVariable(value = "code") String code) {
-        Subject subject = subjectsService.getSubjectByCode(code);
+        Subject subject = subjectService.getSubjectByCode(code);
         List<User> teachers = usersService.getTeachersBySubjectCode(code);
         model.addAttribute("subject", subject);
         model.addAttribute("teachers", teachers);
@@ -72,7 +63,7 @@ public class CourseController {
 
     @RequestMapping("/admin/subjects")
     public String adminSubjects(Model model) {
-        List<Subject> subjects = subjectsService.getAllSubjects();
+        List<Subject> subjects = subjectService.getAllSubjects();
         model.addAttribute("subjects", subjects);
         return "admin/subjects";
     }
@@ -81,7 +72,7 @@ public class CourseController {
     public ModelAndView createSubject(Map<String, Object> model, @RequestParam(value = "c", required = false) String c) {
         CreateSubjectForm createSubjectForm = new CreateSubjectForm();
         if (c != null && c != "") {
-            Subject subject = subjectsService.getSubjectByCode(c);
+            Subject subject = subjectService.getSubjectByCode(c);
 
             createSubjectForm.setCode(subject.getCode());
             createSubjectForm.setName(subject.getName());
@@ -112,23 +103,23 @@ public class CourseController {
         subject.setDescription(createSubjectForm.getDescription());
 
         if (c != null && c != "") {
-            subjectsService.save(subject, true);
+            subjectService.save(subject, true);
             return new ModelAndView(new RedirectView("/admin/subjects", true, false));
         }
-        if (subjectsService.exists(createSubjectForm.getCode())) {
+        if (subjectService.exists(createSubjectForm.getCode())) {
             errors.rejectValue("code", "DuplicateKey.subject.code");
             return new ModelAndView("admin/createsubject");
         }
 
-        subjectsService.save(subject, false);
+        subjectService.save(subject, false);
 
         return new ModelAndView(new RedirectView("/admin/subjects", true, false));
     }
 
     @RequestMapping(value = "admin/subjects/{code}/addteacher")
     public String addTeacherToSubject(Model model, @PathVariable(value = "code") String code) {
-        List<User> addedTeachers = subjectsService.getTeachersBySubjectCode(code);
-        List<User> notAddedTeachers = subjectsService.getNotAddedTeachersBySubjectCode(code);
+        List<User> addedTeachers = subjectService.getTeachersBySubjectCode(code);
+        List<User> notAddedTeachers = subjectService.getNotAddedTeachersBySubjectCode(code);
         model.addAttribute("addedTeachers", addedTeachers);
         model.addAttribute("notAddedTeachers", notAddedTeachers);
         model.addAttribute("code", code);
@@ -138,15 +129,15 @@ public class CourseController {
 
     @RequestMapping(value = "admin/subjects/{code}/addteacher/{id}", method = RequestMethod.POST)
     public ModelAndView addTeacherToSubject(Model model, @PathVariable(value = "id") int id, @PathVariable(value = "code") String code) {
-        List<User> teachers = subjectsService.addTeacherToSubject(code, id);
+        List<User> teachers = subjectService.addTeacherToSubject(code, id);
 
         return new ModelAndView(new RedirectView("/admin/subjects/" + code + "/addteacher", true, false));
     }
 
     @RequestMapping(value = "admin/teachers/{id}/addsubject")
     public String addSubjectToTeacher(Model model, @PathVariable(value = "id") int id) {
-        List<Subject> addedSubjects = subjectsService.getSubjectsByTeacherId(id);
-        List<Subject> notAddedSubjects = subjectsService.getNotAddedSubjectsByTeacherId(id);
+        List<Subject> addedSubjects = subjectService.getSubjectsByTeacherId(id);
+        List<Subject> notAddedSubjects = subjectService.getNotAddedSubjectsByTeacherId(id);
         model.addAttribute("addedSubjects", addedSubjects);
         model.addAttribute("notAddedSubjects", notAddedSubjects);
         model.addAttribute("id", id);
@@ -156,20 +147,20 @@ public class CourseController {
 
     @RequestMapping(value = "admin/teachers/{id}/addsubject/{code}", method = RequestMethod.POST)
     public ModelAndView addSubjectToTeacher(Model model, @PathVariable(value = "id") int id, @PathVariable(value = "code") String code) {
-        List<Subject> subjects = subjectsService.addSubjectToTeacher(id, code);
+        List<Subject> subjects = subjectService.addSubjectToTeacher(id, code);
 
         return new ModelAndView(new RedirectView("/admin/teachers/" + id + "/addsubject", true, false));
     }
 
     @RequestMapping(value = "/admin/subjects/{code}/delete", method = RequestMethod.GET)
     public ModelAndView deleteSubject(@PathVariable("code") String code) {
-        subjectsService.deleteSubject(code);
+        subjectService.deleteSubject(code);
         return new ModelAndView(new RedirectView("/admin/subjects", true, false));
     }
 
     @RequestMapping("/admin/courses")
     public String adminCourses(Model model) {
-        List<Course> courses = coursesService.getAllCourses();
+        List<Course> courses = courseService.getAllCourses();
         model.addAttribute("courses", courses);
         return "admin/courses";
     }
@@ -180,7 +171,7 @@ public class CourseController {
 
         if (id != null) {
 
-            Course course = coursesService.getCourseById(id);
+            Course course = courseService.getCourseById(id);
 
 
             createCourseForm.setId(course.getId());
@@ -204,7 +195,7 @@ public class CourseController {
             course.setId(id);
             course.setStartDate(createCourseForm.getStartDate());
             course.setDescription(createCourseForm.getDescription());
-            coursesService.update(course);
+            courseService.update(course);
             return new ModelAndView(new RedirectView("/admin/courses", true, false));
         }
         if (errors.hasErrors()) {
@@ -216,20 +207,20 @@ public class CourseController {
         course.setStartDate(createCourseForm.getStartDate());
         course.setDescription(createCourseForm.getDescription());
 
-        coursesService.save(course);
+        courseService.save(course);
 
         return new ModelAndView(new RedirectView("/admin/courses", true, false));
     }
 
     @RequestMapping(value = "admin/courses/{id}/addsubjectandteacher", method = RequestMethod.GET)
     public String addSubjectAndTeacherToCourse(Model model, @PathVariable(value = "id") int id) {
-        Course course = coursesService.getCourseById(id);
+        Course course = courseService.getCourseById(id);
 
         AddSubjectAndTeacherForm addSubjectAndTeacherForm = new AddSubjectAndTeacherForm();
         addSubjectAndTeacherForm.setSubjectCode(course.getSubject().getCode());
         addSubjectAndTeacherForm.setTeacherId(course.getTeacher().getId());
 
-        List<Subject> subjects = subjectsService.getAllSubjects();
+        List<Subject> subjects = subjectService.getAllSubjects();
         List<User> teachers = usersService.getAllTeachers();
 
         model.addAttribute("subjects", subjects);
@@ -242,32 +233,32 @@ public class CourseController {
 
     @RequestMapping(value = "admin/courses/{id}/addsubjectandteacher", method = RequestMethod.POST)
     public ModelAndView addSubjectAndTeacherToCoursePost(AddSubjectAndTeacherForm addSubjectAndTeacherForm, @PathVariable(value = "id") int id) {
-        Subject subject = subjectsService.getSubjectByCode(addSubjectAndTeacherForm.getSubjectCode());
+        Subject subject = subjectService.getSubjectByCode(addSubjectAndTeacherForm.getSubjectCode());
         User teacher = usersService.getUserById(addSubjectAndTeacherForm.getTeacherId());
 
-        coursesService.addSubjectAndTeacherToCourse(id, subject, teacher);
+        courseService.addSubjectAndTeacherToCourse(id, subject, teacher);
 
         return new ModelAndView(new RedirectView("/admin/courses", true, false));
     }
 
     @RequestMapping(value = "admin/courses/{id}/addsubject/{code}", method = RequestMethod.POST)
     public ModelAndView addSubjectToCourse(Model model, @PathVariable(value = "id") int id, @PathVariable(value = "code") String code) {
-        List<Subject> subjects = subjectsService.addSubjectToTeacher(id, code);
+        List<Subject> subjects = subjectService.addSubjectToTeacher(id, code);
 
         return new ModelAndView(new RedirectView("/admin/teachers/" + id + "/addsubject", true, false));
     }
 
     @RequestMapping(value = "/admin/courses/{id}/delete", method = RequestMethod.GET)
     public ModelAndView deleteCourse(@PathVariable("id") int id) {
-        coursesService.deleteCourse(id);
+        courseService.deleteCourse(id);
         return new ModelAndView(new RedirectView("/admin/courses", true, false));
     }
 
     @RequestMapping("/student")
     public String viewStudent(Model model) {
         int id = ((MyUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        List<Course> courses = coursesService.getCoursesByStudentId(id);
-        List<Course> newCourses = coursesService.getNewCourses(3);
+        List<Course> courses = courseService.getCoursesByStudentId(id);
+        List<Course> newCourses = courseService.getNewCourses(3);
 
         model.addAttribute("courses", courses);
         model.addAttribute("newCourses", newCourses);
@@ -278,8 +269,8 @@ public class CourseController {
     @RequestMapping("/courses/{id}")
     public String viewCourse(Model model, @PathVariable(value = "id") int id, @RequestParam(value = "quantityerror", required = false) String quantityError) {
         int userId = ((MyUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        Course course = coursesService.getCourseById(id);
-        Boolean isEnrolled = coursesService.isEnrolled(id, userId);
+        Course course = courseService.getCourseById(id);
+        Boolean isEnrolled = courseService.isEnrolled(id, userId);
 
         if(quantityError != null) {
             model.addAttribute("quantityError", "There are no vacancies for this course");
@@ -293,7 +284,7 @@ public class CourseController {
 
     @RequestMapping(value = "courses/{id}/enrol/{userId}", method = RequestMethod.POST)
     public ModelAndView enrolForCourse(Model model, @PathVariable(value = "userId") int userId, @PathVariable(value = "id") int id) {
-        if(!coursesService.addStudentToCourse(id, userId)) {
+        if (!courseService.addStudentToCourse(id, userId)) {
             return new ModelAndView(new RedirectView("/courses/" + id + "?quantityerror", true, false));
         }
 
@@ -303,7 +294,7 @@ public class CourseController {
     @RequestMapping("/teacher")
     public String viewTeacher(Model model) {
         int id = ((MyUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        List<Course> courses = coursesService.getCoursesByTeacherId(id);
+        List<Course> courses = courseService.getCoursesByTeacherId(id);
 
 
         model.addAttribute("courses", courses);
@@ -314,9 +305,9 @@ public class CourseController {
     @RequestMapping("teacher/courses/{id}")
     public String viewCourseForTeacher(Model model, @PathVariable(value = "id") int id) {
         int teacherId = ((MyUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        Course course = coursesService.getCourseById(id);
+        Course course = courseService.getCourseById(id);
         Boolean teachersCourse = course.getTeacher().getId() == teacherId;
-        List<User> students = coursesService.getStudentsByCourseId(id);
+        List<User> students = courseService.getStudentsByCourseId(id);
 
         model.addAttribute("course", course);
         model.addAttribute("students", students);
@@ -335,7 +326,7 @@ public class CourseController {
 
     @RequestMapping(value = "teacher/courses/{id}/{userId}/rate", method = RequestMethod.POST)
     public ModelAndView rateStudent(@ModelAttribute(value = "mark") String mark, Model model, @PathVariable(value = "userId") int userId, @PathVariable(value = "id") int id) {
-        coursesService.rateStudent(id, userId, mark);
+        courseService.rateStudent(id, userId, mark);
         System.out.println(mark);
 
         return new ModelAndView(new RedirectView("/teacher/courses/" + id, true, false, false));

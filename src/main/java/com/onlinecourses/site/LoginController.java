@@ -1,6 +1,6 @@
 package com.onlinecourses.site;
 
-import com.onlinecourses.site.services.UsersService;
+import com.onlinecourses.site.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,12 +15,9 @@ import java.util.Map;
  */
 @Controller
 public class LoginController {
-    UsersService usersService;
 
     @Autowired
-    public void setUsersService(UsersService usersService) {
-        this.usersService = usersService;
-    }
+    UserService usersService;
 
     @RequestMapping("/loggedin")
     public ModelAndView loggedin(Map<String, Object> model, HttpServletRequest request) {

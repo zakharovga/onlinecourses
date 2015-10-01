@@ -9,8 +9,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-import javax.sql.DataSource;
-
 /**
  * Created by user on 04.07.2015.
  */
@@ -18,8 +16,8 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    DataSource dataSource;
+//    @Autowired
+//    DataSource dataSource;
 
     @Autowired
     MyUserDetailService myUserDetailService;
@@ -28,7 +26,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder builder) throws Exception {
         builder
                 .userDetailsService(myUserDetailService);
-//            .passwordEncoder(new BCryptPasswordEncoder());
+//                .passwordEncoder(new BCryptPasswordEncoder());
 
     }
 

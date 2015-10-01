@@ -1,8 +1,11 @@
 package com.onlinecourses.site.services;
 
-import com.onlinecourses.site.dao.*;
+import com.onlinecourses.site.dao.Course;
+import com.onlinecourses.site.dao.CourseDao;
+import com.onlinecourses.site.dao.Subject;
+import com.onlinecourses.site.dao.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -10,84 +13,75 @@ import java.util.List;
 /**
  * Created by zakhar on 13.07.2015.
  */
-@Component("coursesService")
-public class CoursesService {
+@Service
+public class DefaultCourseService implements CourseService {
     private static int QUANTITY = 100;
-    private CoursesDao coursesDao;
-    private UsersDao usersDao;
 
     @Autowired
-    public void setCoursesDao(CoursesDao coursesDao) {
-        this.coursesDao = coursesDao;
-    }
-
-    @Autowired
-    public void setUsersDao(UsersDao usersDao) {
-        this.usersDao = usersDao;
-    }
+    private CourseDao courseDao;
 
     public List<Course> getAllCourses() {
-        return coursesDao.getAllCourses();
+        return courseDao.getAllCourses();
     }
 
     public Course getCourseById(int id) {
-        return coursesDao.getCourseById(id);
+        return courseDao.getCourseById(id);
     }
 
     public void update(Course course) {
-        coursesDao.update(course);
+        courseDao.update(course);
     }
 
     public void save(Course course) {
-        coursesDao.save(course);
+        courseDao.save(course);
     }
 
     public void deleteCourse(int id) {
-        coursesDao.deleteCourse(id);
+        courseDao.deleteCourse(id);
     }
 
     @Transactional
     public void addSubjectAndTeacherToCourse(int id, Subject subject, User teacher) {
         if(subject != null) {
-            coursesDao.addSubjectToCourse(id, subject);
+            courseDao.addSubjectToCourse(id, subject);
         }
         if(teacher != null) {
-            coursesDao.addTeacherToCourse(id, teacher);
+            courseDao.addTeacherToCourse(id, teacher);
         }
     }
 
     public List<Course> getCoursesByStudentId(int id) {
-        return coursesDao.getCoursesByStudentId(id);
+        return courseDao.getCoursesByStudentId(id);
     }
 
     public List<Course> getNewCourses(int n) {
-        return coursesDao.getNewCourses(n);
+        return courseDao.getNewCourses(n);
     }
 
     @Transactional
     public boolean addStudentToCourse(int id, int userId) {
-        if(coursesDao.studentsQuantity(id) >= this.QUANTITY) {
+        if (courseDao.studentsQuantity(id) >= this.QUANTITY) {
             return false;
         }
         else {
-            coursesDao.addStudentToCourse(id, userId);
+            courseDao.addStudentToCourse(id, userId);
             return true;
         }
     }
 
     public Boolean isEnrolled(int id, int userId) {
-        return coursesDao.isEnrolled(id, userId);
+        return courseDao.isEnrolled(id, userId);
     }
 
     public List<Course> getCoursesByTeacherId(int id) {
-        return coursesDao.getCoursesByTeacherId(id);
+        return courseDao.getCoursesByTeacherId(id);
     }
 
     public List<User> getStudentsByCourseId(int id) {
-        return coursesDao.getStudentsByCourseId(id);
+        return courseDao.getStudentsByCourseId(id);
     }
 
     public void rateStudent(int id, int userId, String mark) {
-        coursesDao.rateStudent(id, userId, mark);
+        courseDao.rateStudent(id, userId, mark);
     }
 }

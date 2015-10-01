@@ -6,30 +6,24 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by zakhar on 13.07.2015.
  */
 @Component("coursesDao")
-public class CoursesDao {
+public class CourseDaoImpl implements CourseDao {
     NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     JdbcTemplate jdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource jdbc) {
-        Locale.setDefault(Locale.ENGLISH);
+//        Locale.setDefault(Locale.ENGLISH);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbc);
-    }
-
-    @Autowired
-    public void setJdbcTemplate(DataSource jdbc) {
         this.jdbcTemplate = new JdbcTemplate(jdbc);
     }
 
@@ -58,7 +52,6 @@ public class CoursesDao {
         return namedParameterJdbcTemplate.update("update courses set start_date = to_date(:startDate, 'MM/DD/YYYY'), description = :description where course_id = :id", params) == 1;
     }
 
-    @Transactional
     public boolean save(Course course) {
         MapSqlParameterSource params = new MapSqlParameterSource();
 

@@ -7,18 +7,17 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by zakharov_ga on 08.07.2015.
  */
 @Component("subjectsDao")
-public class SubjectsDao {
+public class SubjectDaoImpl implements SubjectDao {
     NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource jdbc) {
-        Locale.setDefault(Locale.ENGLISH);
+//        Locale.setDefault(Locale.ENGLISH);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbc);
     }
 

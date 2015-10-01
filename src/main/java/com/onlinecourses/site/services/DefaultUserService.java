@@ -1,31 +1,30 @@
 package com.onlinecourses.site.services;
 
 import com.onlinecourses.site.dao.User;
-import com.onlinecourses.site.dao.UsersDao;
+import com.onlinecourses.site.dao.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 /**
  * Created by user on 04.07.2015.
  */
-@Component("usersService")
-public class UsersService {
-    private UsersDao usersDao;
+@Service
+public class DefaultUserService implements UserService {
 
     @Autowired
-    public void setUsersDao(UsersDao usersDao) {
-        this.usersDao = usersDao;
-    }
+    private UserDao userDao;
 
     public List<User> getAllUsers() {
-        return usersDao.getAllUsers();
+        return userDao.getAllUsers();
     }
 
+    @Transactional
     public void save(User user, String authority) {
         if(user.getId() == 0) {
-            usersDao.createUser(user, authority);
+            userDao.createUser(user, authority);
         }
         else {
             update(user);
@@ -33,27 +32,27 @@ public class UsersService {
     }
 
     public List<User> getAllTeachers() {
-        return usersDao.getAllUsersByRole("ROLE_TEACHER");
+        return userDao.getAllUsersByRole("ROLE_TEACHER");
     }
 
 
     public List<User> getTeachersBySubjectCode(String code) {
-        return usersDao.getTeachersBySubjectCode(code);
+        return userDao.getTeachersBySubjectCode(code);
     }
 
     public User getUserById(int id) {
-        return usersDao.getUserById(id);
+        return userDao.getUserById(id);
     }
 
     public void deleteUser(int id) {
-        usersDao.deleteUser(id);
+        userDao.deleteUser(id);
     }
 
     public boolean exists(String email) {
-        return usersDao.exists(email);
+        return userDao.exists(email);
     }
 
     public void update(User teacher) {
-        usersDao.update(teacher);
+        userDao.update(teacher);
     }
 }

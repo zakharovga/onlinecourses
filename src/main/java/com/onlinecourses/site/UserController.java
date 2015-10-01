@@ -2,8 +2,8 @@ package com.onlinecourses.site;
 
 import com.onlinecourses.site.dao.Subject;
 import com.onlinecourses.site.dao.User;
-import com.onlinecourses.site.services.SubjectsService;
-import com.onlinecourses.site.services.UsersService;
+import com.onlinecourses.site.services.SubjectService;
+import com.onlinecourses.site.services.UserService;
 import com.onlinecourses.site.validation.ValidEmail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,18 +28,11 @@ import java.util.Map;
 @Controller
 public class UserController {
 
-    UsersService usersService;
-    SubjectsService subjectsService;
+    @Autowired
+    UserService usersService;
 
     @Autowired
-    public void setUsersService(UsersService usersService) {
-        this.usersService = usersService;
-    }
-
-    @Autowired
-    public void setSubjectsService(SubjectsService subjectsService) {
-        this.subjectsService = subjectsService;
-    }
+    SubjectService subjectService;
 
     @RequestMapping(value = "/register", method = RequestMethod.GET)
     public ModelAndView register(Map<String, Object> model) {
@@ -142,7 +135,7 @@ public class UserController {
     public String viewSubject(Model model, @PathVariable(value = "id") int id) {
         User teacher = usersService.getUserById(id);
         System.out.println(teacher.getLastName());
-        List<Subject> subjects = subjectsService.getSubjectsByTeacherId(id);
+        List<Subject> subjects = subjectService.getSubjectsByTeacherId(id);
 
         model.addAttribute("teacher", teacher);
         model.addAttribute("subjects", subjects);
@@ -152,11 +145,11 @@ public class UserController {
 
     @RequestMapping("admin/teachers/{id}/addsubject/{code}")
     public String addSubjectToTeacher(Model model, @PathVariable(value = "id") int id, @PathVariable(value = "code") String code) {
-        subjectsService.addSubjectToTeacher(id, code);
+        subjectService.addSubjectToTeacher(id, code);
 
         User teacher = usersService.getUserById(id);
         System.out.println(teacher.getLastName());
-        List<Subject> subjects = subjectsService.getSubjectsByTeacherId(id);
+        List<Subject> subjects = subjectService.getSubjectsByTeacherId(id);
 
         model.addAttribute("teacher", teacher);
         model.addAttribute("subjects", subjects);

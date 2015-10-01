@@ -10,7 +10,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -18,24 +17,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by user on 04.07.2015.
  */
 @Component("usersDao")
-public class UsersDao {
+public class UserDaoImpl implements UserDao {
     NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     JdbcTemplate jdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource jdbc) {
-        Locale.setDefault(Locale.ENGLISH);
+//        Locale.setDefault(Locale.ENGLISH);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbc);
-    }
-
-    @Autowired
-    public void setJdbcTemplate(DataSource jdbc) {
         this.jdbcTemplate = new JdbcTemplate(jdbc);
     }
 
@@ -43,7 +37,6 @@ public class UsersDao {
         return namedParameterJdbcTemplate.query("select * from users", new UsersRowMapper());
     }
 
-    @Transactional
     public void createUser(User user, String authority) {
         MapSqlParameterSource params = new MapSqlParameterSource();
 
