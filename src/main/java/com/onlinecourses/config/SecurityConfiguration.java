@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
  * Created by user on 04.07.2015.
@@ -16,17 +17,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-//    @Autowired
-//    DataSource dataSource;
-
     @Autowired
     MyUserDetailService myUserDetailService;
 
     @Override
     protected void configure(AuthenticationManagerBuilder builder) throws Exception {
         builder
-                .userDetailsService(myUserDetailService);
-//                .passwordEncoder(new BCryptPasswordEncoder());
+                .userDetailsService(myUserDetailService)
+                .passwordEncoder(new BCryptPasswordEncoder());
 
     }
 
@@ -42,8 +40,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/", "/register").permitAll()
                 .antMatchers("/student/**").hasRole("STUDENT")
                 .antMatchers("/teacher/**").hasRole("TEACHER")
-//                .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/admin/**").permitAll()
+                .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/subjects/**").permitAll()
                 .antMatchers("/teachers/**").permitAll()
                 .anyRequest().authenticated()

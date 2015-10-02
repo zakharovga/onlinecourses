@@ -3,9 +3,12 @@ package com.onlinecourses.site.services;
 import com.onlinecourses.site.dao.User;
 import com.onlinecourses.site.dao.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.List;
 
 /**
@@ -13,6 +16,17 @@ import java.util.List;
  */
 @Service
 public class DefaultUserService implements UserService {
+
+    private static final SecureRandom RANDOM;
+    private static final int HASHING_ROUNDS = 10;
+
+    static {
+        try {
+            RANDOM = SecureRandom.getInstanceStrong();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
     @Autowired
     private UserDao userDao;
@@ -24,6 +38,11 @@ public class DefaultUserService implements UserService {
     @Transactional
     public void save(User user, String authority) {
         if(user.getId() == 0) {
+            String password = user.getPassword();
+            if (password != null && password.length() > 0) {
+                String salt = BCrypt.gensalt(HASHING_ROUNDS, RANDOM);
+                user.setPassword(BCrypt.hashpw(password, salt));
+            }
             userDao.createUser(user, authority);
         }
         else {

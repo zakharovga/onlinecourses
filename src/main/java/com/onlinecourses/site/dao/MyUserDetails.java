@@ -12,25 +12,20 @@ import java.util.*;
  */
 public class MyUserDetails implements UserDetails {
 
-    private String username;
-    private String password;
     private final Set<GrantedAuthority> authorities;
     private final boolean accountNonExpired;
     private final boolean accountNonLocked;
     private final boolean credentialsNonExpired;
     private final boolean enabled;
-
+    private String email;
+    private String password;
     private String firstName;
     private String lastName;
     private int id;
 
-    public MyUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities, int id, String lastName, String firstName) {
-        this(username, password, true, true, true, true, authorities, id, lastName, firstName);
-    }
-
     public MyUserDetails(String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities, int id, String lastName, String firstName) {
         if(username != null && !"".equals(username) && password != null) {
-            this.username = username;
+            this.email = username;
             this.password = password;
             this.enabled = enabled;
             this.accountNonExpired = accountNonExpired;
@@ -45,6 +40,20 @@ public class MyUserDetails implements UserDetails {
         }
     }
 
+    private static SortedSet<GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {
+        Assert.notNull(authorities, "Cannot pass a null GrantedAuthority collection");
+        TreeSet sortedAuthorities = new TreeSet(new MyUserDetails.AuthorityComparator());
+        Iterator i$ = authorities.iterator();
+
+        while (i$.hasNext()) {
+            GrantedAuthority grantedAuthority = (GrantedAuthority) i$.next();
+            Assert.notNull(grantedAuthority, "GrantedAuthority list cannot contain any null elements");
+            sortedAuthorities.add(grantedAuthority);
+        }
+
+        return sortedAuthorities;
+    }
+
     public int getId() {
         return id;
     }
@@ -57,12 +66,12 @@ public class MyUserDetails implements UserDetails {
         return firstName;
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
     }
 
     public void setLastName(String lastName) {
@@ -80,11 +89,11 @@ public class MyUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUsername(String email) {
+        this.email = email;
     }
 
     @Override
@@ -110,20 +119,6 @@ public class MyUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return enabled;
-    }
-
-    private static SortedSet<GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {
-        Assert.notNull(authorities, "Cannot pass a null GrantedAuthority collection");
-        TreeSet sortedAuthorities = new TreeSet(new MyUserDetails.AuthorityComparator());
-        Iterator i$ = authorities.iterator();
-
-        while(i$.hasNext()) {
-            GrantedAuthority grantedAuthority = (GrantedAuthority)i$.next();
-            Assert.notNull(grantedAuthority, "GrantedAuthority list cannot contain any null elements");
-            sortedAuthorities.add(grantedAuthority);
-        }
-
-        return sortedAuthorities;
     }
 
     private static class AuthorityComparator implements Comparator<GrantedAuthority>, Serializable {

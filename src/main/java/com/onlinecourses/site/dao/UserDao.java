@@ -1,7 +1,5 @@
 package com.onlinecourses.site.dao;
 
-import org.springframework.security.core.GrantedAuthority;
-
 import java.util.List;
 
 /**
@@ -26,11 +24,5 @@ public interface UserDao {
 
     User getUserByEmail(String email);
 
-    MyUserDetails loadUserByUsername(String username);
-
-    List<MyUserDetails> loadUsersByUsername(String email);
-
-    List<GrantedAuthority> loadUserAuthorities(String email);
-
-    MyUserDetails createUserDetails(String username, MyUserDetails userFromUserQuery, List<GrantedAuthority> combinedAuthorities);
+    MyUserDetails loadUserByEmail(String username);
 }

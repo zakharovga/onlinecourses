@@ -28,7 +28,6 @@ public class UserDaoImpl implements UserDao {
 
     @Autowired
     public void setDataSource(DataSource jdbc) {
-//        Locale.setDefault(Locale.ENGLISH);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbc);
         this.jdbcTemplate = new JdbcTemplate(jdbc);
     }
@@ -115,8 +114,8 @@ public class UserDaoImpl implements UserDao {
         return namedParameterJdbcTemplate.queryForObject("select * from users where email = :email", params, new UsersRowMapper());
     }
 
-    public MyUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        List users = this.loadUsersByUsername(username);
+    public MyUserDetails loadUserByEmail(String email) throws UsernameNotFoundException {
+        List users = this.loadUsersByUsername(email);
         if(users.size() == 0) {
             throw new UsernameNotFoundException("Username not found");
         } else {
@@ -129,12 +128,12 @@ public class UserDaoImpl implements UserDao {
             if(dbAuths.size() == 0) {
                 throw new UsernameNotFoundException("User has no GrantedAuthority");
             } else {
-                return this.createUserDetails(username, user, dbAuths);
+                return this.createUserDetails(email, user, dbAuths);
             }
         }
     }
 
-    public List<MyUserDetails> loadUsersByUsername(String email) {
+    private List<MyUserDetails> loadUsersByUsername(String email) {
         return jdbcTemplate.query("SELECT email, password, enabled, user_id, last_name, first_name FROM users WHERE email = ?", new String[]{email}, new RowMapper() {
             public MyUserDetails mapRow(ResultSet rs, int rowNum) throws SQLException {
                 String username = rs.getString(1);
@@ -148,7 +147,7 @@ public class UserDaoImpl implements UserDao {
         });
     }
 
-    public List<GrantedAuthority> loadUserAuthorities(String email) {
+    private List<GrantedAuthority> loadUserAuthorities(String email) {
         return jdbcTemplate.query("SELECT users.email, authorities.authority FROM users, authorities WHERE authorities.user_id = users.user_id and users.email = ?", new String[]{email}, new RowMapper() {
             public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
                 String roleName = rs.getString(2);
@@ -157,7 +156,7 @@ public class UserDaoImpl implements UserDao {
         });
     }
 
-    public MyUserDetails createUserDetails(String username, MyUserDetails userFromUserQuery, List<GrantedAuthority> combinedAuthorities) {
+    private MyUserDetails createUserDetails(String username, MyUserDetails userFromUserQuery, List<GrantedAuthority> combinedAuthorities) {
         return new MyUserDetails(username, userFromUserQuery.getPassword(), userFromUserQuery.isEnabled(), true, true, true, combinedAuthorities, userFromUserQuery.getId(), userFromUserQuery.getLastName(), userFromUserQuery.getFirstName());
     }
 }
